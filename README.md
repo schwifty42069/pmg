@@ -1,0 +1,1 @@
+An M3U generator for plex using the same scraping logic as piptv!
