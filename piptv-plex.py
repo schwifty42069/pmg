@@ -112,7 +112,6 @@ class M3UWriter(object):
 
     def initialize_m3u_file(self):
         if os.path.exists(write_dir):
-            print("Found existing m3u! Removing..\n")
             os.remove(write_dir)
             with open(write_dir, "w") as writer:
                 writer.write('')
