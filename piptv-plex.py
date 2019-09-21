@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup as Soup
 import configparser
 import os
+import time
 
 config = configparser.RawConfigParser()
 config.read('config/config.properties')
@@ -134,10 +135,15 @@ class M3UWriter(object):
 
 
 def main():
-    mw = M3UWriter()
-    mw.scrape_hls_hotlinks()
-    mw.initialize_m3u_file()
-    mw.feed_chunk_writer()
+    while True:
+        try:
+            mw = M3UWriter()
+            mw.scrape_hls_hotlinks()
+            mw.initialize_m3u_file()
+            mw.feed_chunk_writer()
+            time.sleep(300)
+        except KeyboardInterrupt:
+            break
 
 
 if __name__ in "__main__":
