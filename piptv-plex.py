@@ -137,13 +137,11 @@ class M3UWriter(object):
 def main():
     while True:
         try:
-            print("Starting...\n")
             mw = M3UWriter()
             mw.scrape_hls_hotlinks()
             mw.initialize_m3u_file()
             mw.feed_chunk_writer()
-            print("Sleeping for 5 minutes...\n")
-            time.sleep(300)
+            time.sleep(19800)
         except KeyboardInterrupt:
             break
 
