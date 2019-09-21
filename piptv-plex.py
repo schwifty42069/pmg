@@ -107,7 +107,6 @@ class M3UWriter(object):
             bsoup = Soup(requests.get(link).text, 'html.parser')
             for s in bsoup.findAll("script"):
                 if "player.setup" in str(s):
-                    print("Scraped {}\n".format(s.next_element.split(" file: ")[1].split(',')[0].strip("\'")))
                     self.scraped_links.append(s.next_element.split(" file: ")[1].split(',')[0].strip("\'"))
 
     def initialize_m3u_file(self):
@@ -115,18 +114,15 @@ class M3UWriter(object):
             print("Found existing m3u! Removing..\n")
             os.remove(write_dir)
             with open(write_dir, "w") as writer:
-                print("Writing empty m3u..\n")
                 writer.write('')
                 writer.close()
         else:
             with open(write_dir, "w") as writer:
-                print("No m3u found, creating an empty one...\n")
                 writer.write('')
                 writer.close()
 
     def write_m3u_chunk(self, channel_code, url):
         with open(write_dir, "a") as writer:
-            print("Writing m3u chunk to {}\n".format(write_dir))
             writer.write("#EXTM3U\n")
             writer.write("#EXTINF: -1,{}\n".format(channel_code))
             writer.write("{}\n\n".format(url))
@@ -134,7 +130,6 @@ class M3UWriter(object):
 
     def feed_chunk_writer(self):
         for code, link in zip(self.channel_codes, self.scraped_links):
-            print("Feeding chunk writer {}, {}\n".format(code, link))
             self.write_m3u_chunk(code, link)
 
 
