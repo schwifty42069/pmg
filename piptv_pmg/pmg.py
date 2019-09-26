@@ -1,22 +1,19 @@
 import requests
 from bs4 import BeautifulSoup as Soup
-import configparser
 import os
-
-config = configparser.RawConfigParser()
-config.read('config/config.properties')
-write_dir = config.get('output', 'dir')
+import sys
+import getopt
 
 
 class M3UWriter(object):
-    def __init__(self):
+    def __init__(self, write_dir):
         self.channel_codes = ['ABCE', 'A&E', 'AMC', 'APL', 'BBCA', 'BET', 'BOOM', 'BRVO', 'CNE', 'CBSE', 'CMT', 'CNBC',
                               'CNN', 'COM', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
                               'FBN', 'FOXE', 'FNC', 'FS1', 'FS2', 'FREEFM', 'FX', 'FXM', 'FXX', 'GOLF', 'GSN', 'HALL',
                               'HMM', 'HBO', 'HGTV', 'HIST', 'HLN', 'ID', 'LIFE', 'LIFEMOV', 'MLBN', 'MTHD', 'MSNBC',
                               'MTV', 'NGW', 'NGC', 'NBA', 'NBCSN', 'NBCE', 'NFLHD', 'NIKE', 'NKTN', 'OWN', 'OXGN', 'PAR',
                               'PBSE', 'POP', 'SCI', 'SHO', 'STARZ', 'SUND', 'SYFY', 'TBS', 'TCM', 'TELE', 'TNNS', 'CWE',
-                              'WEATH', 'TLC', 'TNT', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WETV']
+                              'WEATH', 'TLC', 'TNT', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WE']
 
         self.links = ['http://ustvgo.tv/abc-live-streaming-free/', 'http://ustvgo.tv/ae-networks-live-streaming-free/',
                       'http://ustvgo.tv/amc-live/', 'http://ustvgo.tv/animal-planet-live/',
@@ -54,6 +51,7 @@ class M3UWriter(object):
                       'http://ustvgo.tv/tv-land-live-free/', 'http://ustvgo.tv/univision/',
                       'http://ustvgo.tv/usa-network-live/', 'http://ustvgo.tv/vh1/', 'http://ustvgo.tv/we-tv/']
 
+        self.write_dir = write_dir
         self.scraped_links = []
 
     def scrape_hls_hotlinks(self):
@@ -64,18 +62,18 @@ class M3UWriter(object):
                     self.scraped_links.append(s.next_element.split(" file: ")[1].split(',')[0].strip("\'"))
 
     def initialize_m3u_file(self):
-        if os.path.exists(write_dir):
-            os.remove(write_dir)
-            with open(write_dir, "w") as writer:
+        if os.path.exists(self.write_dir):
+            os.remove(self.write_dir)
+            with open(self.write_dir, "w") as writer:
                 writer.write('')
                 writer.close()
         else:
-            with open(write_dir, "w") as writer:
+            with open(self.write_dir, "w") as writer:
                 writer.write('')
                 writer.close()
 
     def write_m3u_chunk(self, channel_code, url):
-        with open(write_dir, "a") as writer:
+        with open(self.write_dir, "a") as writer:
             writer.write("#EXTM3U\n")
             writer.write("#EXTINF: -1,{}\n".format(channel_code))
             writer.write("{}\n\n".format(url))
@@ -86,15 +84,30 @@ class M3UWriter(object):
             self.write_m3u_chunk(code, link)
 
 
-def main():
-    mw = M3UWriter()
+def main(argv):
+    write_dir = ''
+    try:
+        opts, args = getopt.getopt(argv, "h:o:", ["output="])
+    except getopt.GetoptError:
+        print('pmg.py -o <outputfile>')
+        sys.exit()
+    for opt, arg in opts:
+        if opt == '-h':
+            print('pmg.py -o <outputfile>')
+            sys.exit()
+        elif opt in ("-o", "--output"):
+            write_dir = arg
+    if write_dir == '':
+        print('pmg.py -o <outputfile>')
+        sys.exit()
+    mw = M3UWriter(write_dir)
     mw.scrape_hls_hotlinks()
     mw.initialize_m3u_file()
     mw.feed_chunk_writer()
 
 
 if __name__ in "__main__":
-    main()
+    main(sys.argv[1:])
 
 
 

@@ -2,4 +2,9 @@
 unlock.sh
 unlock.txt
 unlock.txt.gpg
-piptv-plex.iml
+pmg.iml
+piptv.m3u
+build
+dist
+piptv_pmg.egg-info
+
