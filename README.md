@@ -1,7 +1,7 @@
 pmg - Piptv M3U Generator
 =======
 
-An M3U generator for IPTV services [kodi/plex/etc.] using the same scraping logic as [piptv](https://github.com/schwifty42069/piptv)!
+An M3U generator for IPTV services [kodi/plex/etc.] using the same scraping logic as [piptv](https://github.com/schwifty42069/piptv)! *I provide this script and all support for it free of charge, but any donations are welcome and appreciated. They can be sent to this bitcoin address: **bc1qahz93vyljhjj0fsadu2m8zdhaqdaf60gnc7y2y** Thank you and enjoy!*
 
 **Installation**
 
