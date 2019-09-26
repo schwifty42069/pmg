@@ -27,7 +27,7 @@ To use the script to generate an M3U, simply run the script and pass the directo
 **Windows**
 
 ```
-python -m piptv_pgm.pgm -o C:\Users\Example_Person\Example_dir\example.m3u
+python -m piptv_pgm.pgm -o "C:\Users\Example_Person\Example_dir\example.m3u"
 ```
 
 **Ubuntu/Debian**
