@@ -10,13 +10,13 @@ Pgm is available on pypi. To install the script, do the following in a terminal/
 **Windows**
 
 ```
-pip install piptv-pmg
+pip install piptv_pmg
 ```
 
 **Ubuntu/Debian**
 
 ```
-python3 -m pip install piptv-pmg
+python3 -m pip install piptv_pmg
 ```
 
 **Usage**
