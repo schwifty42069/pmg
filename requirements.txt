@@ -1,2 +1,2 @@
-requests==2.22.0
+cfscrape
 beautifulsoup4==4.8.0

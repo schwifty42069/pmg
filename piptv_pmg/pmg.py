@@ -1,8 +1,8 @@
-import requests
 from bs4 import BeautifulSoup as Soup
 import os
 import sys
 import getopt
+import cfscrape
 
 
 class M3UWriter(object):
@@ -55,8 +55,9 @@ class M3UWriter(object):
         self.scraped_links = []
 
     def scrape_hls_hotlinks(self):
+        scraper = cfscrape.create_scraper()
         for link in self.links:
-            bsoup = Soup(requests.get(link).text, 'html.parser')
+            bsoup = Soup(scraper.get(link).content, 'html.parser')
             for s in bsoup.findAll("script"):
                 if "player.setup" in str(s):
                     self.scraped_links.append(s.next_element.split(" file: ")[1].split(',')[0].strip("\'"))
