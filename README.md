@@ -39,4 +39,3 @@ python3 -m piptv_pgm.pgm -o /home/some_user/some_dir/example.m3u
 *Documentation for cross platform automation of the script, as well as some processes for use with 
 specific IPTV services such a plex and kodi will be added shortly, we are still working on making
 them as clear and detailed as possible!*
-
