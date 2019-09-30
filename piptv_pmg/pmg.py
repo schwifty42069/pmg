@@ -3,6 +3,7 @@ import sys
 import getopt
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+import random
 
 
 class M3UWriter(object):
@@ -21,7 +22,14 @@ class M3UWriter(object):
 
         self.cdn_channel_codes = ['ABC', 'AE', 'AMC', 'Animal', 'BBCAmerica', 'BET', 'Boomerang', 'Bravo', 'CN', 'CBS',
                                   'CMT', 'CNBC', 'CNN', 'Comedy', 'DA', 'Discovery', 'Disney', 'DisneyJr', 'DisneyXD',
-                                  'DIY', '']
+                                  'DIY', 'E', 'ESPN', 'ESPN2', 'FoodNetwork', 'FoxBusiness', 'FOX', 'FoxNews', 'FS1',
+                                  'FS2', 'Freeform', 'FX', 'FXMovie', 'FXX', 'GOLF', 'GSN', 'Hallmark', 'HMM', 'HBO', 'HGTV',
+                                  'History', 'HLN', 'ID', 'Lifetime', 'LifetimeM', 'MLB', 'MotorTrend', 'MSNBC', 'MTV',
+                                  'NatGEOWild', 'NatGEO', 'NBA', 'NBCSN', 'NBC', 'NFL', 'Nickelodeon', 'Nicktoons',
+                                  'OWN', 'Oxygen', 'Paramount', 'PBS', 'POP', 'Science', 'Showtime', 'StarZ',
+                                  'SundanceTV', 'SYFY', 'TBS', 'TCM', 'Telemundo', 'Tennis',
+                                  'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8', 'TLC', 'TNT', 'Travel',
+                                  'TruTV', 'TVLand', 'Univision', 'USANetwork', 'VH1', 'WETV']
 
         self.links = ['http://ustvgo.tv/abc-live-streaming-free/', 'http://ustvgo.tv/ae-networks-live-streaming-free/',
                       'http://ustvgo.tv/amc-live/', 'http://ustvgo.tv/animal-planet-live/',
@@ -68,7 +76,7 @@ class M3UWriter(object):
         self.driver = webdriver.Firefox(self.profile, firefox_options=self.options)
         self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
         self.wms_auth_token = {}
-        self.scraped_links = []
+        self.generated_links = []
 
         self.export_har_js = \
             """return HAR.triggerExport().then(harLog => {
@@ -79,25 +87,19 @@ class M3UWriter(object):
                    }
                });"""
 
-    @staticmethod
-    def assemble_hotlink(node, channel, token):
-        return "http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(node, channel, token)
+    def assemble_hotlink(self, node, channel):
+        self.generated_links.append("http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(node, channel, self.wms_auth_token))
+
+    def generate_links(self):
+        for node, channel, token in zip(self.cdn_nodes[random.randrange(len(self.cdn_nodes))], self.cdn_channel_codes,
+                                        self.wms_auth_token['wmsAuthSign']):
+            if "weather" in channel:
+                self.generated_links.append(channel)
+            else:
+                self.assemble_hotlink(node, channel)
 
     def retrieve_new_token(self):
-        """ # The old logic
-        scraper = cfscrape.create_scraper()
-        for link in self.links:
-            req = requests.get(link)
-            if req.status_code == 503:
-                bsoup = Soup(scraper.get(link).content, 'html.parser')
-            else:
-                bsoup = Soup(req.text, 'html.parser')
-            for s in bsoup.findAll("script"):
-                if "player.setup" in str(s):
-                    self.scraped_links.append(s.next_element.split(" file: ")[1].split(',')[0].strip("\'"))
-                    """
         self.driver.get(self.renew_token_node)
-        # use this to update wmsAuth token, build out calls to cdn root nodes for m3u
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
 
@@ -120,7 +122,7 @@ class M3UWriter(object):
             writer.close()
 
     def feed_chunk_writer(self):
-        for code, link in zip(self.channel_codes, self.scraped_links):
+        for code, link in zip(self.channel_codes, self.generated_links):
             self.write_m3u_chunk(code, link)
 
 
