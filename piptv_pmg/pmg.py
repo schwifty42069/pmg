@@ -79,10 +79,11 @@ class M3UWriter(object):
                    }
                });"""
 
-    def assemble_hotlink(self, node, channel, token):
+    @staticmethod
+    def assemble_hotlink(node, channel, token):
         return "http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(node, channel, token)
 
-    def scrape_hls_hotlinks(self):
+    def retrieve_new_token(self):
         """ # The old logic
         scraper = cfscrape.create_scraper()
         for link in self.links:
@@ -98,7 +99,7 @@ class M3UWriter(object):
         self.driver.get(self.renew_token_node)
         # use this to update wmsAuth token, build out calls to cdn root nodes for m3u
         req = self.driver.execute_script(self.export_har_js)
-        print(req)
+        self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
 
     def initialize_m3u_file(self):
         if os.path.exists(self.write_dir):
@@ -140,7 +141,7 @@ def main(argv):
         print('pmg.py -o <outputfile>')
         sys.exit()
     mw = M3UWriter(write_dir)
-    mw.scrape_hls_hotlinks()
+    mw.retrieve_new_token()
     mw.initialize_m3u_file()
     mw.feed_chunk_writer()
 
