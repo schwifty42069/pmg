@@ -1,13 +1,16 @@
-from bs4 import BeautifulSoup as Soup
-import requests
 import os
 import sys
 import getopt
-import cfscrape
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 
 class M3UWriter(object):
     def __init__(self, write_dir):
+        # Test to see if requests can be sent to CDN nodes
+        self.cdn_nodes = ['peer1.savitar.tv', 'peer2.savitar.tv', 'peer3.savitar.tv',
+                          'peer4.savitar.tv', 'live.savitar.tv']
+
         self.channel_codes = ['ABCE', 'A&E', 'AMC', 'APL', 'BBCA', 'BET', 'BOOM', 'BRVO', 'CNE', 'CBSE', 'CMT', 'CNBC',
                               'CNN', 'COM', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
                               'FBN', 'FOXE', 'FNC', 'FS1', 'FS2', 'FREEFM', 'FX', 'FXM', 'FXX', 'GOLF', 'GSN', 'HALL',
@@ -15,6 +18,10 @@ class M3UWriter(object):
                               'MTV', 'NGW', 'NGC', 'NBA', 'NBCSN', 'NBCE', 'NFLHD', 'NIKE', 'NKTN', 'OWN', 'OXGN', 'PAR',
                               'PBSE', 'POP', 'SCI', 'SHO', 'STARZ', 'SUND', 'SYFY', 'TBS', 'TCM', 'TELE', 'TNNS', 'CWE',
                               'WEATH', 'TLC', 'TNT', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WE']
+
+        self.cdn_channel_codes = ['ABC', 'AE', 'AMC', 'Animal', 'BBCAmerica', 'BET', 'Boomerang', 'Bravo', 'CN', 'CBS',
+                                  'CMT', 'CNBC', 'CNN', 'Comedy', 'DA', 'Discovery', 'Disney', 'DisneyJr', 'DisneyXD',
+                                  'DIY', '']
 
         self.links = ['http://ustvgo.tv/abc-live-streaming-free/', 'http://ustvgo.tv/ae-networks-live-streaming-free/',
                       'http://ustvgo.tv/amc-live/', 'http://ustvgo.tv/animal-planet-live/',
@@ -53,9 +60,30 @@ class M3UWriter(object):
                       'http://ustvgo.tv/usa-network-live/', 'http://ustvgo.tv/vh1/', 'http://ustvgo.tv/we-tv/']
 
         self.write_dir = write_dir
+        self.profile = webdriver.FirefoxProfile()
+        self.profile.add_extension("resource/har_export_trigger-0.6.1.xpi")
+        self.options = FirefoxOptions()
+        # self.options.add_argument("-headless")
+        self.options.add_argument("-devtools")
+        self.driver = webdriver.Firefox(self.profile, firefox_options=self.options)
+        self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
+        self.wms_auth_token = {}
         self.scraped_links = []
 
+        self.export_har_js = \
+            """return HAR.triggerExport().then(harLog => {
+                   for (r of harLog.entries) {
+                       if (r.request.url.includes("m3u8")) { 
+                           return r.request;
+                       }
+                   }
+               });"""
+
+    def assemble_hotlink(self, node, channel, token):
+        return "http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(node, channel, token)
+
     def scrape_hls_hotlinks(self):
+        """ # The old logic
         scraper = cfscrape.create_scraper()
         for link in self.links:
             req = requests.get(link)
@@ -66,6 +94,11 @@ class M3UWriter(object):
             for s in bsoup.findAll("script"):
                 if "player.setup" in str(s):
                     self.scraped_links.append(s.next_element.split(" file: ")[1].split(',')[0].strip("\'"))
+                    """
+        self.driver.get(self.renew_token_node)
+        # use this to update wmsAuth token, build out calls to cdn root nodes for m3u
+        req = self.driver.execute_script(self.export_har_js)
+        print(req)
 
     def initialize_m3u_file(self):
         if os.path.exists(self.write_dir):

@@ -1,4 +1,6 @@
+selenium==3.141.0
 requests==2.22.0
-setuptools==39.0.1
+setuptools==41.2.0
 cfscrape==2.0.8
 beautifulsoup4==4.8.0
+
