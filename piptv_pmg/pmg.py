@@ -61,7 +61,7 @@ class M3UWriter(object):
 
         self.write_dir = write_dir
         self.profile = webdriver.FirefoxProfile()
-        self.profile.add_extension("resource/har_export_trigger-0.6.1.xpi")
+        self.profile.add_extension("../resource/har_export_trigger-0.6.1.xpi")
         self.options = FirefoxOptions()
         # self.options.add_argument("-headless")
         self.options.add_argument("-devtools")
