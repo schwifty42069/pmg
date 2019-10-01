@@ -104,6 +104,7 @@ class M3UWriter(object):
         self.driver.get(self.renew_token_node)
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
+        self.driver.quit()
 
     def initialize_m3u_file(self):
         if os.path.exists(self.write_dir):
