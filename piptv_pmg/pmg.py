@@ -16,29 +16,30 @@ class M3UWriter(object):
                               'CNN', 'COM', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
                               'FBN', 'FOXE', 'FNC', 'FS1', 'FS2', 'FREEFM', 'FX', 'FXM', 'FXX', 'GOLF', 'GSN', 'HALL',
                               'HMM', 'HBO', 'HGTV', 'HIST', 'HLN', 'ID', 'LIFE', 'LIFEMOV', 'MLBN', 'MTHD', 'MSNBC',
-                              'MTV', 'NGW', 'NGC', 'NBA', 'NBCSN', 'NBCE', 'NFLHD', 'NIKE', 'NKTN', 'OWN', 'OXGN', 'PAR',
-                              'PBSE', 'POP', 'SCI', 'SHO', 'STARZ', 'SUND', 'SYFY', 'TBS', 'TCM', 'TELE', 'TNNS', 'CWE',
-                              'WEATH', 'TLC', 'TNT', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WE']
+                              'MTV', 'NGW', 'NGC', 'NBA', 'NBCSN', 'NBCE', 'NFLHD', 'NIKE', 'NKTN', 'OWN', 'OXGN',
+                              'PAR', 'PBSE', 'POP', 'SCI', 'SHO', 'STARZ', 'SUND', 'SYFY', 'TBS', 'TCM', 'TELE', 'TNNS',
+                              'CWE', 'WEATH', 'TLC', 'TNT', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WE']
 
         self.cdn_channel_codes = ['ABC', 'AE', 'AMC', 'Animal', 'BBCAmerica', 'BET', 'Boomerang', 'Bravo', 'CN', 'CBS',
                                   'CMT', 'CNBC', 'CNN', 'Comedy', 'DA', 'Discovery', 'Disney', 'DisneyJr', 'DisneyXD',
                                   'DIY', 'E', 'ESPN', 'ESPN2', 'FoodNetwork', 'FoxBusiness', 'FOX', 'FoxNews', 'FS1',
-                                  'FS2', 'Freeform', 'FX', 'FXMovie', 'FXX', 'GOLF', 'GSN', 'Hallmark', 'HMM', 'HBO', 'HGTV',
-                                  'History', 'HLN', 'ID', 'Lifetime', 'LifetimeM', 'MLB', 'MotorTrend', 'MSNBC', 'MTV',
-                                  'NatGEOWild', 'NatGEO', 'NBA', 'NBCSN', 'NBC', 'NFL', 'Nickelodeon', 'Nicktoons',
-                                  'OWN', 'Oxygen', 'Paramount', 'PBS', 'POP', 'Science', 'Showtime', 'StarZ',
-                                  'SundanceTV', 'SYFY', 'TBS', 'TCM', 'Telemundo', 'Tennis',
+                                  'FS2', 'Freeform', 'FX', 'FXMovie', 'FXX', 'GOLF', 'GSN', 'Hallmark', 'HMM', 'HBO',
+                                  'HGTV', 'History', 'HLN', 'ID', 'Lifetime', 'LifetimeM', 'MLB', 'MotorTrend', 'MSNBC',
+                                  'MTV', 'NatGEOWild', 'NatGEO', 'NBA', 'NBCSN', 'NBC', 'NFL', 'Nickelodeon',
+                                  'Nicktoons', 'OWN', 'Oxygen', 'Paramount', 'PBS', 'POP', 'Science', 'Showtime',
+                                  'StarZ', 'SundanceTV', 'SYFY', 'TBS', 'TCM', 'Telemundo', 'Tennis',
                                   'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8', 'TLC', 'TNT', 'Travel',
                                   'TruTV', 'TVLand', 'Univision', 'USANetwork', 'VH1', 'WETV']
 
         self.links = ['http://ustvgo.tv/abc-live-streaming-free/', 'http://ustvgo.tv/ae-networks-live-streaming-free/',
                       'http://ustvgo.tv/amc-live/', 'http://ustvgo.tv/animal-planet-live/',
                       'http://ustvgo.tv/bbc-america-live/', 'http://ustvgo.tv/bet/', 'http://ustvgo.tv/boomerang/',
-                      'http://ustvgo.tv/bravo-channel-live-free', 'http://ustvgo.tv/cartoon-network-live-streaming-free',
+                      'http://ustvgo.tv/bravo-channel-live-free',
+                      'http://ustvgo.tv/cartoon-network-live-streaming-free',
                       'http://ustvgo.tv/cbs-live-streaming-free/', 'http://ustvgo.tv/cmt/',
                       'http://ustvgo.tv/cnbc-live-streaming-free/', 'http://ustvgo.tv/cnn-live-streaming-free/',
                       'http://ustvgo.tv/comedy-central-live-free/', 'http://ustvgo.tv/destination-america/',
-                      'http://ustvgo.tv/discovery-channel-live/', 'http://ustvgo.tv/disney-channel-live-streaming-free/',
+                      'http://ustvgo.tv/discovery-channel-live', 'http://ustvgo.tv/disney-channel-live-streaming-free/',
                       'http://ustvgo.tv/disneyjr/', 'http://ustvgo.tv/disneyxd/', 'http://ustvgo.tv/diy/',
                       'http://ustvgo.tv/e/', 'http://ustvgo.tv/espn-live/', 'http://ustvgo.tv/espn2/',
                       'http://ustvgo.tv/food-network-live-free/', 'http://ustvgo.tv/fox-business-live-streaming-free/',
@@ -71,7 +72,7 @@ class M3UWriter(object):
         self.profile = webdriver.FirefoxProfile()
         self.profile.add_extension("../resource/har_export_trigger-0.6.1.xpi")
         self.options = FirefoxOptions()
-        # self.options.add_argument("-headless")
+        self.options.add_argument("-headless")
         self.options.add_argument("-devtools")
         self.driver = webdriver.Firefox(self.profile, firefox_options=self.options)
         self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
@@ -88,15 +89,16 @@ class M3UWriter(object):
                });"""
 
     def assemble_hotlink(self, node, channel):
-        self.generated_links.append("http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(node, channel, self.wms_auth_token))
+        self.generated_links.append("http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(
+            node, channel, self.wms_auth_token['wmsAuthSign']))
 
     def generate_links(self):
-        for node, channel, token in zip(self.cdn_nodes[random.randrange(len(self.cdn_nodes))], self.cdn_channel_codes,
-                                        self.wms_auth_token['wmsAuthSign']):
+        for channel in self.cdn_channel_codes:
             if "weather" in channel:
                 self.generated_links.append(channel)
             else:
-                self.assemble_hotlink(node, channel)
+                x = random.randrange(5)
+                self.assemble_hotlink(self.cdn_nodes[x], channel)
 
     def retrieve_new_token(self):
         self.driver.get(self.renew_token_node)
@@ -144,16 +146,10 @@ def main(argv):
         sys.exit()
     mw = M3UWriter(write_dir)
     mw.retrieve_new_token()
+    mw.generate_links()
     mw.initialize_m3u_file()
     mw.feed_chunk_writer()
 
 
 if __name__ in "__main__":
     main(sys.argv[1:])
-
-
-
-
-
-
-
