@@ -7,11 +7,16 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import random
 import platform
 import time
-import piptv_pmg.pmg
 
 
 class M3UWriter(object):
     def __init__(self, write_dir):
+        try:
+            import piptv_pmg.pmg
+            print("\nFound installed as module!\n")
+            self.is_installed_as_module = True
+        except ModuleNotFoundError:
+            self.is_installed_as_module = False
         # Test to see if requests can be sent to CDN nodes
         self.cdn_nodes = ['peer1.savitar.tv', 'peer2.savitar.tv', 'peer3.savitar.tv', 'live.savitar.tv']
 
@@ -38,15 +43,22 @@ class M3UWriter(object):
         self.profile = webdriver.FirefoxProfile()
         self.options = FirefoxOptions()
         # Need to configure a VM for macOS testing
-        if platform.system() == "Windows":
+        if platform.system() == "Windows" and self.is_installed_as_module:
             print("\nDetected windows...\n \nTrying to set environment variable for geckodriver\n")
             self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "\\resource\\"
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
-        else:
+        elif platform.system() == "Windows" and not self.is_installed_as_module:
+            self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "\\resource\\"
+            self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
+        elif platform.system() == "Linux" and self.is_installed_as_module:
             self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "/resource/"
             if not os.path.exists("/usr/bin/geckodriver"):
-                shutil.copyfile('../resource/geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
-        # self.options.add_argument("-headless")
+                shutil.copyfile(self.resource_dir + 'geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
+        elif platform.system() == "Linux" and not self.is_installed_as_module:
+            self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "/resource/"
+            if not os.path.exists("/usr/bin/geckodriver"):
+                shutil.copyfile(self.resource_dir + 'geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
+        self.options.add_argument("-headless")
         self.options.add_argument("-devtools")
         if platform.system() == "Windows":
             self.driver = webdriver.Firefox(self.profile, options=self.options)
