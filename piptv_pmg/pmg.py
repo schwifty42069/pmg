@@ -13,7 +13,6 @@ class M3UWriter(object):
     def __init__(self, write_dir):
         try:
             import piptv_pmg.pmg
-            print("\nFound installed as module!\n")
             self.is_installed_as_module = True
         except ModuleNotFoundError:
             self.is_installed_as_module = False
@@ -101,7 +100,7 @@ class M3UWriter(object):
 
     def retrieve_new_token(self):
         self.driver.get(self.renew_token_node)
-        print("\nDoing black magic..\n")
+        print("\nWorking some black magic..\n")
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
         print("\nRetrieved token:\n\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
