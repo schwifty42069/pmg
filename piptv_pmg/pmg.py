@@ -39,21 +39,21 @@ class M3UWriter(object):
         # Need to configure a VM for macOS testing
         if platform.system() == "Windows":
             print("\nDetected windows...\n \nTrying to set environment variable for geckodriver\n")
-            self.gecko_dir = self.set_gecko_dir()
-            self.set_environment_variable(self.gecko_dir)
+            self.resource_dir = os.getcwd() + "\\resource\\"
+            self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         else:
-            self.resource_dir = "../resource/har_export_trigger-0.6.1.xpi"
+            self.resource_dir = os.getcwd() + "/resource/"
             if not os.path.exists("/usr/bin/geckodriver"):
                 shutil.copyfile('../resource/geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
         # self.options.add_argument("-headless")
         self.options.add_argument("-devtools")
         if platform.system() == "Windows":
             self.driver = webdriver.Firefox(self.profile, options=self.options)
-            self.driver.install_addon(self.gecko_dir.split("geckodriver")[0] + "har_export_trigger-0.6.1.xpi",
+            self.driver.install_addon(self.resource_dir + "har_export_trigger-0.6.1.xpi",
                                       temporary=True)
         else:
             print("\nDetected non windows os...\n")
-            self.profile.add_extension(self.resource_dir)
+            self.profile.add_extension(self.resource_dir + "har_export_trigger-0.6.1.xpi")
             self.driver = webdriver.Firefox(self.profile, options=self.options)
 
         self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
@@ -70,10 +70,6 @@ class M3UWriter(object):
                });"""
 
     @staticmethod
-    def set_gecko_dir():
-        return os.getcwd().split("pmg-master")[0] + "pmg-master\\" + "pmg-master\\" + "resource\\" + "geckodriver_win64"
-
-    @staticmethod
     def set_environment_variable(gecko_path):
         os.environ['PATH'] = os.environ['PATH'] + ";" + gecko_path
 
@@ -82,6 +78,7 @@ class M3UWriter(object):
             node, channel, self.wms_auth_token['wmsAuthSign']))
 
     def generate_links(self):
+        print("\nGenerating links...\n")
         for channel in self.cdn_channel_codes:
             if "weather" in channel:
                 self.generated_links.append(channel)
@@ -94,6 +91,7 @@ class M3UWriter(object):
         time.sleep(5)
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
+        print("\nRetrieved token:\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
         self.driver.quit()
 
     def initialize_m3u_file(self):
@@ -115,6 +113,7 @@ class M3UWriter(object):
             writer.close()
 
     def feed_chunk_writer(self):
+        print("\nWriting M3U...\n")
         for code, link in zip(self.channel_codes, self.generated_links):
             self.write_m3u_chunk(code, link)
 

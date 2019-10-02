@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="piptv_pmg",
-    version="0.0.4",
+    version="0.0.6",
     author="Brett Hufnagle",
     author_email="teachingchain0420@gmail.com",
     description="Piptv M3U Generator - An M3U IPTV playlist generator using piptvs scraping logic",
@@ -16,12 +16,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/schwifty42069/pmg",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    include_package_data=True,
     python_requires='>=3.6',
     install_requires=required,
 )
