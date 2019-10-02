@@ -7,6 +7,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import random
 import platform
 import time
+import piptv_pmg.pmg
 
 
 class M3UWriter(object):
@@ -39,10 +40,10 @@ class M3UWriter(object):
         # Need to configure a VM for macOS testing
         if platform.system() == "Windows":
             print("\nDetected windows...\n \nTrying to set environment variable for geckodriver\n")
-            self.resource_dir = os.getcwd() + "\\resource\\"
+            self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "\\resource\\"
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         else:
-            self.resource_dir = os.getcwd() + "/resource/"
+            self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "/resource/"
             if not os.path.exists("/usr/bin/geckodriver"):
                 shutil.copyfile('../resource/geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
         # self.options.add_argument("-headless")
@@ -51,8 +52,8 @@ class M3UWriter(object):
             self.driver = webdriver.Firefox(self.profile, options=self.options)
             self.driver.install_addon(self.resource_dir + "har_export_trigger-0.6.1.xpi",
                                       temporary=True)
-        else:
-            print("\nDetected non windows os...\n")
+        elif platform.system() == "Linux":
+            print("\nDetected Linux...\n")
             self.profile.add_extension(self.resource_dir + "har_export_trigger-0.6.1.xpi")
             self.driver = webdriver.Firefox(self.profile, options=self.options)
 
@@ -91,7 +92,7 @@ class M3UWriter(object):
         time.sleep(5)
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
-        print("\nRetrieved token:\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
+        print("\nRetrieved token:\n\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
         self.driver.quit()
 
     def initialize_m3u_file(self):
