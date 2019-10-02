@@ -1,9 +1,12 @@
 import os
+import shutil
 import sys
 import getopt
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import random
+import platform
+import time
 
 
 class M3UWriter(object):
@@ -32,11 +35,27 @@ class M3UWriter(object):
 
         self.write_dir = write_dir
         self.profile = webdriver.FirefoxProfile()
-        self.profile.add_extension("../resource/har_export_trigger-0.6.1.xpi")
         self.options = FirefoxOptions()
-        self.options.add_argument("-headless")
+        # Need to configure a VM for macOS testing
+        if platform.system() == "Windows":
+            print("\nDetected windows...\n \nTrying to set environment variable for geckodriver\n")
+            self.gecko_dir = self.set_gecko_dir()
+            self.set_environment_variable(self.gecko_dir)
+        else:
+            self.resource_dir = "../resource/har_export_trigger-0.6.1.xpi"
+            if not os.path.exists("/usr/bin/geckodriver"):
+                shutil.copyfile('../resource/geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
+        # self.options.add_argument("-headless")
         self.options.add_argument("-devtools")
-        self.driver = webdriver.Firefox(self.profile, firefox_options=self.options)
+        if platform.system() == "Windows":
+            self.driver = webdriver.Firefox(self.profile, options=self.options)
+            self.driver.install_addon(self.gecko_dir.split("geckodriver")[0] + "har_export_trigger-0.6.1.xpi",
+                                      temporary=True)
+        else:
+            print("\nDetected non windows os...\n")
+            self.profile.add_extension(self.resource_dir)
+            self.driver = webdriver.Firefox(self.profile, options=self.options)
+
         self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
         self.wms_auth_token = {}
         self.generated_links = []
@@ -49,6 +68,14 @@ class M3UWriter(object):
                        }
                    }
                });"""
+
+    @staticmethod
+    def set_gecko_dir():
+        return os.getcwd().split("pmg-master")[0] + "pmg-master\\" + "pmg-master\\" + "resource\\" + "geckodriver_win64"
+
+    @staticmethod
+    def set_environment_variable(gecko_path):
+        os.environ['PATH'] = os.environ['PATH'] + ";" + gecko_path
 
     def assemble_hotlink(self, node, channel):
         self.generated_links.append("http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(
@@ -64,6 +91,7 @@ class M3UWriter(object):
 
     def retrieve_new_token(self):
         self.driver.get(self.renew_token_node)
+        time.sleep(5)
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
         self.driver.quit()
