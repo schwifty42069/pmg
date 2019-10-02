@@ -101,7 +101,7 @@ class M3UWriter(object):
 
     def retrieve_new_token(self):
         self.driver.get(self.renew_token_node)
-        time.sleep(5)
+        print("\nDoing black magic..\n")
         req = self.driver.execute_script(self.export_har_js)
         self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
         print("\nRetrieved token:\n\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
