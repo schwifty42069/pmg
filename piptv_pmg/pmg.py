@@ -1,12 +1,10 @@
 import os
-import shutil
 import sys
 import getopt
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import random
 import platform
-import time
 
 
 class M3UWriter(object):
@@ -51,12 +49,10 @@ class M3UWriter(object):
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         elif platform.system() == "Linux" and self.is_installed_as_module:
             self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "/resource/"
-            if not os.path.exists("/usr/bin/geckodriver"):
-                shutil.copyfile(self.resource_dir + 'geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
+            self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
         elif platform.system() == "Linux" and not self.is_installed_as_module:
             self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "/resource/"
-            if not os.path.exists("/usr/bin/geckodriver"):
-                shutil.copyfile(self.resource_dir + 'geckodriver_linux64/geckodriver', '/usr/bin/geckodriver')
+            self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
         self.options.add_argument("-headless")
         self.options.add_argument("-devtools")
         if platform.system() == "Windows":
@@ -83,7 +79,10 @@ class M3UWriter(object):
 
     @staticmethod
     def set_environment_variable(gecko_path):
-        os.environ['PATH'] = os.environ['PATH'] + ";" + gecko_path
+        if platform.system() == "Windows":
+            os.environ['PATH'] = os.environ['PATH'] + ";" + gecko_path
+        elif platform.system() == "Linux":
+            os.environ['PATH'] = os.environ['PATH'] + ":" + gecko_path
 
     def assemble_hotlink(self, node, channel):
         self.generated_links.append("http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(

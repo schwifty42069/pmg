@@ -5,7 +5,7 @@ An M3U generator for IPTV services [kodi/plex/etc.] using the same scraping logi
 
 **Installation**
 
-Pgm is available on pypi. To install the script, do the following in a terminal/cmd prompt
+pmg is available on pypi. To install the script, do the following in a terminal/cmd prompt
 
 **Windows**
 
@@ -19,22 +19,8 @@ pip install piptv_pmg
 python3 -m pip install piptv_pmg
 ```
 
-*This script requires geckodriver to be installed. I have included the latest 64 & 32bit geckodriver
-binaries for windows in the resource directory in this repo. You can also find them [here.](https://github.com/mozilla/geckodriver/releases) 
-Geckodriver must be moved to a location that's within
-your path environment variable. To see how your path is currently configured in windows, open a cmd prompt
-and type the following:*
-
-```
-echo @PATH@
-``` 
-
-*Ubuntu/Debian users can use their package manager to install geckodriver. 
-For example, in Ubuntu you would type the following in a terminal:*
-
-```
-apt install firefox-geckodriver
-```
+*It is recommended to install the script using the above method (through pypi with pip). Doing it this way should take care of
+setting up a temporary environment with geckodriver for you! Feel free to give the repo a star if you enjoy it, though!*
 
 **Usage**
 
