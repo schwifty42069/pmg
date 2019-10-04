@@ -39,6 +39,11 @@ python -m piptv_pmg.pmg -o "C:\Users\Example_Person\Example_dir\example.m3u"
 python3 -m piptv_pmg.pmg -o /home/some_user/some_dir/example.m3u
 ```
 
+**Plex setup**
+
+Detailed documentation for configuring plex to use this script can be found [here](https://sites.google.com/view/piptv-plex/home)
+
+
 *Documentation for cross platform automation of the script, as well as some processes for use with 
 specific IPTV services such a plex and kodi will be added shortly, we are still working on making
 them as clear and detailed as possible!*
