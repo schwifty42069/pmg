@@ -1,6 +1,7 @@
 import os
 import sys
 import getopt
+import selenium
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import random
@@ -9,11 +10,7 @@ import platform
 
 class M3UWriter(object):
     def __init__(self, write_dir):
-        try:
-            import piptv_pmg.pmg
-            self.is_installed_as_module = True
-        except ModuleNotFoundError:
-            self.is_installed_as_module = False
+        self.is_installed_as_module = str(os.path.exists(os.path.abspath(selenium.__file__).split("selenium")[0] + "piptv_pmg"))
         # Test to see if requests can be sent to CDN nodes
         self.cdn_nodes = ['peer1.savitar.tv', 'peer2.savitar.tv', 'peer3.savitar.tv', 'live.savitar.tv']
 
@@ -42,13 +39,13 @@ class M3UWriter(object):
         # Need to configure a VM for macOS testing
         if platform.system() == "Windows" and self.is_installed_as_module:
             print("\nDetected windows...\n \nTrying to set environment variable for geckodriver\n")
-            self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "\\resource\\"
+            self.resource_dir = str(os.path.abspath(selenium.__file__)).split("selenium")[0] + "\\piptv_pmg\\resource\\"
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         elif platform.system() == "Windows" and not self.is_installed_as_module:
             self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "\\resource\\"
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         elif platform.system() == "Linux" and self.is_installed_as_module:
-            self.resource_dir = str(os.path.abspath(piptv_pmg.pmg.__file__)).split("pmg.py")[0] + "/resource/"
+            self.resource_dir = str(os.path.abspath(selenium.__file__)).split("selenium")[0] + "piptv_pmg/resource/"
             self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
         elif platform.system() == "Linux" and not self.is_installed_as_module:
             self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "/resource/"
