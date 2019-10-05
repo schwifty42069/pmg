@@ -10,7 +10,7 @@ import platform
 
 class M3UWriter(object):
     def __init__(self, write_dir):
-        self.is_installed_as_module = str(os.path.exists(os.path.abspath(selenium.__file__).split("selenium")[0] + "piptv_pmg"))
+        self.is_installed_as_module = os.path.exists(os.path.abspath(selenium.__file__).split("selenium")[0] + "piptv_pmg")
         # Test to see if requests can be sent to CDN nodes
         self.cdn_nodes = ['peer1.savitar.tv', 'peer2.savitar.tv', 'peer3.savitar.tv', 'live.savitar.tv']
 
