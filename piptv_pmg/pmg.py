@@ -38,41 +38,34 @@ class M3UWriter(object):
         self.options = FirefoxOptions()
         # Need to configure a VM for macOS testing
         if platform.system() == "Windows" and self.is_installed_as_module:
-            print("\nDetected windows...\n \nTrying to set environment variable for geckodriver\n")
+            print("\nDetected Windows...\n \nTrying to set environment variable for geckodriver\n")
             self.resource_dir = str(os.path.abspath(selenium.__file__)).split("selenium")[0] + "\\piptv_pmg\\resource\\"
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         elif platform.system() == "Windows" and not self.is_installed_as_module:
             self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "\\resource\\"
             self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
         elif platform.system() == "Linux" and self.is_installed_as_module:
+            print("\nDetected Linux...\n \nTrying to set environment variable for geckodriver\n")
             self.resource_dir = str(os.path.abspath(selenium.__file__)).split("selenium")[0] + "piptv_pmg/resource/"
             self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
         elif platform.system() == "Linux" and not self.is_installed_as_module:
             self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "/resource/"
             self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
         self.options.add_argument("-headless")
-        self.options.add_argument("-devtools")
-        if platform.system() == "Windows":
-            self.driver = webdriver.Firefox(self.profile, options=self.options)
-            self.driver.install_addon(self.resource_dir + "har_export_trigger-0.6.1.xpi",
-                                      temporary=True)
-        elif platform.system() == "Linux":
-            print("\nDetected Linux...\n")
-            self.profile.add_extension(self.resource_dir + "har_export_trigger-0.6.1.xpi")
-            self.driver = webdriver.Firefox(self.profile, options=self.options)
-
+        self.driver = webdriver.Firefox(self.profile, options=self.options)
         self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
         self.wms_auth_token = {}
         self.generated_links = []
 
-        self.export_har_js = \
-            """return HAR.triggerExport().then(harLog => {
-                   for (r of harLog.entries) {
-                       if (r.request.url.includes("m3u8")) { 
-                           return r.request;
-                       }
+        self.extract_embedded_hotlink = \
+            """return (() => {
+                 for (e of document.getElementsByTagName("script")) {
+                   if (e.innerText.includes("m3u8")) {
+                     return e.innerText;
                    }
-               });"""
+                 }
+               })()
+            """
 
     @staticmethod
     def set_environment_variable(gecko_path):
@@ -97,8 +90,10 @@ class M3UWriter(object):
     def retrieve_new_token(self):
         self.driver.get(self.renew_token_node)
         print("\nWorking some black magic..\n")
-        req = self.driver.execute_script(self.export_har_js)
-        self.wms_auth_token.update({req['queryString'][0]['name']: req['queryString'][0]['value']})
+        embedded_js_data = self.driver.execute_script(self.extract_embedded_hotlink)
+        hotlink = embedded_js_data.split("  file: \'")[1].split("\'")[0]
+        token = hotlink.split("?")[1].split("=")[1]
+        self.wms_auth_token.update({"wmsAuthSign": token})
         print("\nRetrieved token:\n\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
         self.driver.quit()
 
