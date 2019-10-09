@@ -92,7 +92,7 @@ class M3UWriter(object):
         print("\nWorking some black magic..\n")
         embedded_js_data = self.driver.execute_script(self.extract_embedded_hotlink)
         hotlink = embedded_js_data.split("  file: \'")[1].split("\'")[0]
-        token = hotlink.split("?")[1].split("=")[1]
+        token = hotlink.split("?")[1].split("wmsAuthSign=")[1]
         self.wms_auth_token.update({"wmsAuthSign": token})
         print("\nRetrieved token:\n\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
         self.driver.quit()
