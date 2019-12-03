@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="piptv_pmg",
-    version="0.1.3",
+    version="0.1.4",
     author="Brett Hufnagle",
     author_email="teachingchain0420@gmail.com",
     description="Piptv M3U Generator - An M3U IPTV playlist generator using piptvs scraping logic",

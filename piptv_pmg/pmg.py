@@ -12,7 +12,7 @@ class M3UWriter(object):
     def __init__(self, write_dir):
         self.is_installed_as_module = os.path.exists(os.path.abspath(selenium.__file__).split("selenium")[0] + "piptv_pmg")
         # Test to see if requests can be sent to CDN nodes
-        self.cdn_nodes = ['peer1.savitar.tv', 'peer2.savitar.tv', 'peer3.savitar.tv', 'live.savitar.tv']
+        self.cdn_nodes = ['peer1.ustv.to', 'peer2.ustv.to', 'peer3.ustv.to']
 
         self.channel_codes = ['ABCE', 'A&E', 'AMC', 'APL', 'BBCA', 'BET', 'BOOM', 'BRVO', 'CNE', 'CBSE', 'CMT', 'CNBC',
                               'CNN', 'COM', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
@@ -75,7 +75,7 @@ class M3UWriter(object):
             os.environ['PATH'] = os.environ['PATH'] + ":" + gecko_path
 
     def assemble_hotlink(self, node, channel):
-        self.generated_links.append("http://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(
+        self.generated_links.append("https://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(
             node, channel, self.wms_auth_token['wmsAuthSign']))
 
     def generate_links(self):
@@ -84,7 +84,7 @@ class M3UWriter(object):
             if "weather" in channel:
                 self.generated_links.append(channel)
             else:
-                x = random.randrange(4)
+                x = random.randrange(3)
                 self.assemble_hotlink(self.cdn_nodes[x], channel)
 
     def retrieve_new_token(self):
@@ -112,6 +112,8 @@ class M3UWriter(object):
         with open(self.write_dir, "a") as writer:
             writer.write("#EXTM3U\n")
             writer.write("#EXTINF: -1,{}\n".format(channel_code))
+            writer.write("#EXTVLCOPT:http-user-agent=\"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 "
+                         "Firefox/71.0\"\n")
             writer.write("{}\n\n".format(url))
             writer.close()
 
