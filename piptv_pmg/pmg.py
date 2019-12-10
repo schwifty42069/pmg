@@ -1,17 +1,13 @@
 import os
 import sys
 import getopt
-import selenium
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import random
-import platform
+import requests
+from bs4 import BeautifulSoup as Soup
 
 
 class M3UWriter(object):
     def __init__(self, write_dir):
-        self.is_installed_as_module = os.path.exists(os.path.abspath(selenium.__file__).split("selenium")[0] + "piptv_pmg")
-        # Test to see if requests can be sent to CDN nodes
         self.cdn_nodes = ['peer1.ustv.to', 'peer2.ustv.to', 'peer3.ustv.to']
 
         self.channel_codes = ['ABCE', 'A&E', 'AMC', 'APL', 'BBCA', 'BET', 'BOOM', 'BRVO', 'CNE', 'CBSE', 'CMT', 'CNBC',
@@ -33,46 +29,11 @@ class M3UWriter(object):
                                   'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8', 'TLC', 'TNT', 'Travel',
                                   'TruTV', 'TVLand', 'Univision', 'USANetwork', 'VH1', 'WETV']
 
+        self.headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"}
         self.write_dir = write_dir
-        self.profile = webdriver.FirefoxProfile()
-        self.options = FirefoxOptions()
-        # Need to configure a VM for macOS testing
-        if platform.system() == "Windows" and self.is_installed_as_module:
-            print("\nDetected Windows...\n \nTrying to set environment variable for geckodriver\n")
-            self.resource_dir = str(os.path.abspath(selenium.__file__)).split("selenium")[0] + "\\piptv_pmg\\resource\\"
-            self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
-        elif platform.system() == "Windows" and not self.is_installed_as_module:
-            self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "\\resource\\"
-            self.set_environment_variable(self.resource_dir + "\\geckodriver_win64")
-        elif platform.system() == "Linux" and self.is_installed_as_module:
-            print("\nDetected Linux...\n \nTrying to set environment variable for geckodriver\n")
-            self.resource_dir = str(os.path.abspath(selenium.__file__)).split("selenium")[0] + "piptv_pmg/resource/"
-            self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
-        elif platform.system() == "Linux" and not self.is_installed_as_module:
-            self.resource_dir = os.getcwd().split("piptv_pmg")[0] + "/resource/"
-            self.set_environment_variable(self.resource_dir + "geckodriver_linux64")
-        self.options.add_argument("-headless")
-        self.driver = webdriver.Firefox(self.profile, options=self.options)
-        self.renew_token_node = 'http://ustvgo.tv/nfl-network-live-free'
+        self.renew_token_node = 'https://ustvgo.tv/player.php?stream=NFL'
         self.wms_auth_token = {}
         self.generated_links = []
-
-        self.extract_embedded_hotlink = \
-            """return (() => {
-                 for (e of document.getElementsByTagName("script")) {
-                   if (e.innerText.includes("m3u8")) {
-                     return e.innerText;
-                   }
-                 }
-               })()
-            """
-
-    @staticmethod
-    def set_environment_variable(gecko_path):
-        if platform.system() == "Windows":
-            os.environ['PATH'] = os.environ['PATH'] + ";" + gecko_path
-        elif platform.system() == "Linux":
-            os.environ['PATH'] = os.environ['PATH'] + ":" + gecko_path
 
     def assemble_hotlink(self, node, channel):
         self.generated_links.append("https://{}/{}/myStream/playlist.m3u8?wmsAuthSign={}".format(
@@ -88,14 +49,11 @@ class M3UWriter(object):
                 self.assemble_hotlink(self.cdn_nodes[x], channel)
 
     def retrieve_new_token(self):
-        self.driver.get(self.renew_token_node)
         print("\nWorking some black magic..\n")
-        embedded_js_data = self.driver.execute_script(self.extract_embedded_hotlink)
-        hotlink = embedded_js_data.split("  file: \'")[1].split("\'")[0]
-        token = hotlink.split("?")[1].split("wmsAuthSign=")[1]
-        self.wms_auth_token.update({"wmsAuthSign": token})
-        print("\nRetrieved token:\n\n{}\n".format(self.wms_auth_token['wmsAuthSign']))
-        self.driver.quit()
+        bsoup = Soup(requests.get(self.renew_token_node).text, 'html.parser')
+        self.wms_auth_token.update({"wmsAuthSign": bsoup.text.split("file: \'")[1].split("\'")
+                                   [0].split("wmsAuthSign=")[1]})
+        print("\nToken retrieved: {}\n".format(self.wms_auth_token['wmsAuthSign']))
 
     def initialize_m3u_file(self):
         if os.path.exists(self.write_dir):

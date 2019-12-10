@@ -1,7 +1,0 @@
-include piptv_pmg/resource/geckodriver_win64/geckodriver.exe
-include piptv_pmg/resource/geckodriver_win32/geckodriver.exe
-include piptv_pmg/resource/geckodriver_linux64/geckodriver
-include piptv_pmg/resource/geckodriver_linux32/geckodriver
-include piptv_pmg/resource/har_export_trigger-0.6.1.xpi
-include requirements.txt
-include piptv_pmg/resource/readme.resource.md
