@@ -32,7 +32,7 @@ class M3UWriter(object):
         self.headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"}
         self.write_dir = write_dir
         self.renew_token_node = 'https://ustvgo.tv/player.php?stream=NFL'
-        self.wms_auth_token = {}
+        self.wms_auth_token = {'wmsAuthSign' :'c2VydmVyX3RpbWU9MTAvMTMvMjAyMCAzOjU3OjQ1IFBNJmhhc2hfdmFsdWU9WWVTWThRNDVxWFhZKzFFOGtPMlppUT09JnZhbGlkbWludXRlcz0yNDA='} # Only temporary solution
         self.generated_links = []
 
     def assemble_hotlink(self, node, channel):
@@ -47,13 +47,6 @@ class M3UWriter(object):
             else:
                 x = random.randrange(3)
                 self.assemble_hotlink(self.cdn_nodes[x], channel)
-
-    def retrieve_new_token(self):
-        print("\nWorking some black magic..\n")
-        bsoup = Soup(requests.get(self.renew_token_node).text, 'html.parser')
-        self.wms_auth_token.update({"wmsAuthSign": bsoup.text.split("file: \'")[1].split("\'")
-                                   [0].split("wmsAuthSign=")[1]})
-        print("\nToken retrieved: {}\n".format(self.wms_auth_token['wmsAuthSign']))
 
     def initialize_m3u_file(self):
         if os.path.exists(self.write_dir):
@@ -98,7 +91,6 @@ def main(argv):
         print('pmg.py -o <outputfile>')
         sys.exit()
     mw = M3UWriter(write_dir)
-    mw.retrieve_new_token()
     mw.generate_links()
     mw.initialize_m3u_file()
     mw.feed_chunk_writer()
