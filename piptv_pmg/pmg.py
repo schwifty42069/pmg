@@ -3,7 +3,6 @@ import sys
 import getopt
 import random
 import requests
-from bs4 import BeautifulSoup as Soup
 
 
 class M3UWriter(object):
@@ -51,8 +50,9 @@ class M3UWriter(object):
 
     def retrieve_new_token(self):
         print("\nWorking some black magic..\n")
-        bsoup = Soup(requests.post(self.renew_token_node, data=self.renew_token_node_post_data).text, 'html.parser')
-        self.wms_auth_token.update({"wmsAuthSign": bsoup.text.split("wmsAuthSign=")[1]})
+        streamUrl = requests.post(self.renew_token_node, data=self.renew_token_node_post_data).text
+        authToken = streamUrl.split("wmsAuthSign=")[1]
+        self.wms_auth_token.update({"wmsAuthSign": authToken}
         print("\nToken retrieved: {}\n".format(self.wms_auth_token['wmsAuthSign']))
 
     def initialize_m3u_file(self):
