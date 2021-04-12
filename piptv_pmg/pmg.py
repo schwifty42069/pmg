@@ -52,7 +52,7 @@ class M3UWriter(object):
         print("\nWorking some black magic..\n")
         streamUrl = requests.post(self.renew_token_node, data=self.renew_token_node_post_data).text
         authToken = streamUrl.split("wmsAuthSign=")[1]
-        self.wms_auth_token.update({"wmsAuthSign": authToken}
+        self.wms_auth_token.update({"wmsAuthSign": authToken})
         print("\nToken retrieved: {}\n".format(self.wms_auth_token['wmsAuthSign']))
 
     def initialize_m3u_file(self):
