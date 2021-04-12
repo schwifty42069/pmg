@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup as Soup
 
 class M3UWriter(object):
     def __init__(self, write_dir):
-        self.cdn_nodes = ['peer1.ustv.to', 'peer2.ustv.to', 'peer3.ustv.to']
+        self.cdn_nodes = ['s6.ustvgo.org', 's8.ustvgo.org', 's9.ustvgo.org', 's11.ustvgo.org']
 
         self.channel_codes = ['ABCE', 'A&E', 'AMC', 'APL', 'BBCA', 'BET', 'BOOM', 'BRVO', 'CNE', 'CBSE', 'CMT', 'CNBC',
                               'CNN', 'COM', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
@@ -31,7 +31,8 @@ class M3UWriter(object):
 
         self.headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"}
         self.write_dir = write_dir
-        self.renew_token_node = 'https://ustvgo.tv/player.php?stream=NFL'
+        self.renew_token_node = 'https://ustvgo.tv/data.php'
+        self.renew_token_node_post_data = {"stream": "NFL"}
         self.wms_auth_token = {}
         self.generated_links = []
 
@@ -50,9 +51,8 @@ class M3UWriter(object):
 
     def retrieve_new_token(self):
         print("\nWorking some black magic..\n")
-        bsoup = Soup(requests.get(self.renew_token_node).text, 'html.parser')
-        self.wms_auth_token.update({"wmsAuthSign": bsoup.text.split("file: \'")[1].split("\'")
-                                   [0].split("wmsAuthSign=")[1]})
+        bsoup = Soup(requests.post(self.renew_token_node, data=self.renew_token_node_post_data).text, 'html.parser')
+        self.wms_auth_token.update({"wmsAuthSign": bsoup.text.split("wmsAuthSign=")[1]})
         print("\nToken retrieved: {}\n".format(self.wms_auth_token['wmsAuthSign']))
 
     def initialize_m3u_file(self):
