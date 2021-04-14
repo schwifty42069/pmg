@@ -3,35 +3,35 @@ import sys
 import getopt
 import random
 import requests
-from bs4 import BeautifulSoup as Soup
 
 
 class M3UWriter(object):
     def __init__(self, write_dir):
-        self.cdn_nodes = ['peer1.ustv.to', 'peer2.ustv.to', 'peer3.ustv.to']
+        self.cdn_nodes = ['s6.ustvgo.org', 's8.ustvgo.org', 's9.ustvgo.org', 's11.ustvgo.org']
 
         self.channel_codes = ['ABCE', 'A&E', 'AMC', 'APL', 'BBCA', 'BET', 'BOOM', 'BRVO', 'CNE', 'CBSE', 'CMT', 'CNBC',
-                              'CNN', 'COM', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
+                              'CNN', 'COM', 'CW', 'DEST', 'DSC', 'DISE', 'DISJR', 'DXD', 'DIY', 'E!', 'ESPN', 'ESPN2', 'FOOD',
                               'FBN', 'FOXE', 'FNC', 'FS1', 'FS2', 'FREEFM', 'FX', 'FXM', 'FXX', 'GOLF', 'GSN', 'HALL',
                               'HMM', 'HBO', 'HGTV', 'HIST', 'HLN', 'ID', 'LIFE', 'LIFEMOV', 'MLBN', 'MTHD', 'MSNBC',
                               'MTV', 'NGW', 'NGC', 'NBA', 'NBCSN', 'NBCE', 'NFLHD', 'NIKE', 'NKTN', 'OWN', 'OXGN',
-                              'PAR', 'PBSE', 'POP', 'SCI', 'SHO', 'STARZ', 'SUND', 'SYFY', 'TBS', 'TCM', 'TELE', 'TNNS',
-                              'CWE', 'WEATH', 'TLC', 'TNT', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WE']
+                              'PAR', 'PBSE', 'POP', 'SCI', 'SHOW', 'STARZ', 'SUND', 'SYFY', 'TBS', 'TCM', 'TELE', 'TNNS',
+                              'CWE', 'WEATH', 'TLC', 'TNT', 'TOON', 'TRAV', 'TruTV', 'TVLD', 'UNVSO', 'USA', 'VH1', 'WE']
 
         self.cdn_channel_codes = ['ABC', 'AE', 'AMC', 'Animal', 'BBCAmerica', 'BET', 'Boomerang', 'Bravo', 'CN', 'CBS',
-                                  'CMT', 'CNBC', 'CNN', 'Comedy', 'DA', 'Discovery', 'Disney', 'DisneyJr', 'DisneyXD',
+                                  'CMT', 'CNBC', 'CNN', 'Comedy', 'CW', 'DA', 'Discovery', 'Disney', 'DisneyJr', 'DisneyXD',
                                   'DIY', 'E', 'ESPN', 'ESPN2', 'FoodNetwork', 'FoxBusiness', 'FOX', 'FoxNews', 'FS1',
                                   'FS2', 'Freeform', 'FX', 'FXMovie', 'FXX', 'GOLF', 'GSN', 'Hallmark', 'HMM', 'HBO',
                                   'HGTV', 'History', 'HLN', 'ID', 'Lifetime', 'LifetimeM', 'MLB', 'MotorTrend', 'MSNBC',
                                   'MTV', 'NatGEOWild', 'NatGEO', 'NBA', 'NBCSN', 'NBC', 'NFL', 'Nickelodeon',
                                   'Nicktoons', 'OWN', 'Oxygen', 'Paramount', 'PBS', 'POP', 'Science', 'Showtime',
                                   'StarZ', 'SundanceTV', 'SYFY', 'TBS', 'TCM', 'Telemundo', 'Tennis', 'CWE',
-                                  'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8', 'TLC', 'TNT', 'Travel',
-                                  'TruTV', 'TVLand', 'Univision', 'USANetwork', 'VH1', 'WETV']
+                                  'https://weather-lh.akamaihd.net/i/twc_1@92006/master.m3u8', 'TLC', 'TNT', 'CN',
+                                  'Travel', 'TruTV', 'TVLand', 'Univision', 'USANetwork', 'VH1', 'WETV']
 
         self.headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"}
         self.write_dir = write_dir
-        self.renew_token_node = 'https://ustvgo.tv/player.php?stream=NFL'
+        self.renew_token_node = 'https://ustvgo.tv/data.php'
+        self.renew_token_node_post_data = {"stream": "NFL"}
         self.wms_auth_token = {}
         self.generated_links = []
 
@@ -50,9 +50,9 @@ class M3UWriter(object):
 
     def retrieve_new_token(self):
         print("\nWorking some black magic..\n")
-        bsoup = Soup(requests.get(self.renew_token_node).text, 'html.parser')
-        self.wms_auth_token.update({"wmsAuthSign": bsoup.text.split("file: \'")[1].split("\'")
-                                   [0].split("wmsAuthSign=")[1]})
+        stream_url = requests.post(self.renew_token_node, data=self.renew_token_node_post_data).text
+        auth_token = stream_url.split("wmsAuthSign=")[1]
+        self.wms_auth_token.update({"wmsAuthSign": auth_token})
         print("\nToken retrieved: {}\n".format(self.wms_auth_token['wmsAuthSign']))
 
     def initialize_m3u_file(self):
